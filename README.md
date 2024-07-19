@@ -60,8 +60,6 @@ Para pasar de caluroso a intermedio: bajar de 20°
 
 
 ### APIs:
-Entonces para este trabajo práctico propongo hacer un bloque controlador que esté entre la alimentación y las líneas de control de los leds R, G y B (Figura 4). Este controlador va a permitir cambiar el color formado. El esquema de funcionamiento sería el siguiente: 
-
 #### API LM35:
 Se encarga de leer la señal con la información de la temperatura con el ADC
 
@@ -91,10 +89,10 @@ Hace uso de todas las APIs anteriores para cumplir con el objetivo
 NUCLEO-F401RE
 
 ## Periféricos a utilizar:
-1 ANALOG IN: Temperatura
-3 DIGITAL OUT: Salidas para cada color
-1 I2C: Display
-1 UART: Api de debug
+- 1 ANALOG IN: Temperatura
+- 3 DIGITAL OUT: Salidas para cada color
+- 1 I2C: Display
+- 1 UART: Api de debug
 
 ## Diagrama en bloques del Hardware:
 ![image](https://github.com/user-attachments/assets/fef095dc-f7c7-48df-9d44-925ef89aab9a)
