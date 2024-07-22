@@ -16,20 +16,19 @@ TDOO: poner link
 ```
 /sources
 |-- main.cpp
-|-- uart
-| |-- myapp_uart.h
-| |-- myapp_uart.c
 |-- display
-| |-- myapp_display_driver.h
-| |-- myapp_display_driver.c
-| |-- myapp_display_subsystem.h
-| |-- myapp_display_subsystem.c
+| |-- myapp_display_ui.h
+| |-- myapp_display_ui.c
+| |-- i2clcd.h
+| |-- i2clcd.c
 |-- led
 | |-- myapp_led.h
 | |-- myapp_led.c
-|-- lm35
-| |-- myapp_lm35.h
-| |-- myapp_lm35.c
+|-- sensor_temp
+| |-- sensor_temp.h
+| |-- sensor_temp.c
+| |-- DHT.h
+| |-- DHT.c
 |-- main_controller
 | |-- myapp_main_controller.h
 | |-- myapp_main_controller.c
