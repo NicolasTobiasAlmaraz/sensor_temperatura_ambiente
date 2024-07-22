@@ -2,7 +2,8 @@
 
 ## TP2 - Curso Sistemas Embebidos
 ### Alumno:
-Nicolás Almaraz
+Nicolás Almaraz - nnico.almaraz@gmail.com
+
 ### Profesores: 
 - Ariel Lutenberg
 - Segio Caprile
@@ -10,7 +11,7 @@ Nicolás Almaraz
 - Eduardo Filomena
 
 ## Video del Funcionamiento
-TDOO: poner link
+[![Video de Demostración](https://img.youtube.com/vi/RLAnkBudodU/0.jpg)](https://youtu.be/RLAnkBudodU)
 
 ## Estructura de archivos fuente
 ```
@@ -35,63 +36,62 @@ TDOO: poner link
 ```
 
 ## Documentación
-En la carpeta "doc/html" está el archivo "index.html" que contiene la documentación generada con Doxygen del proyecto completo.
+En la carpeta "documentacion" está el archivo "index.html" que contiene la documentación generada con Doxygen del proyecto completo.
 
 ## Objetivo:
 Hacer un mini termómetro de temperatura ambiente.
 
 ## Descripcion
-La idea sería leer la temperatura con un LM35 y mostrarlo en un display LCD de caracteres con interfaz I2C.
+La idea sería leer la temperatura con un DHT22 y mostrarlo en un display LCD de caracteres con interfaz I2C.
 Por otro lado, en función de la temperatura se actualizará el color de un led RGB.
-Temperaturas frias: celeste
-Temperaturas intermedias: amarillo
-Temperaturas calurosas: rojo
+- Temperaturas frias: Azul
+- Temperaturas intermedias: Verde
+- Temperaturas calurosas: Rojo
 
 Para que no haya temperaturas límite le introduje un ciclo de histéresis:
-Para pasar de intermedio a frio: bajar de 10°
-Para pasar de frio a intermedio: subir de 15°
-
-Para pasar de intermedio a caluroso: subir de 25°
-Para pasar de caluroso a intermedio: bajar de 20°
+- Para pasar de intermedio a frio: bajar de 10°
+- Para pasar de frio a intermedio: subir de 15°
+- Para pasar de intermedio a caluroso: subir de 25°
+- Para pasar de caluroso a intermedio: bajar de 20°
 
 ### Diagrama de estados y transiciones:
 ![image](https://github.com/user-attachments/assets/f862cdf5-48c5-4ec2-b2f6-c4ba90b4de31)
 
 
 ### APIs:
-#### API LM35:
-Se encarga de leer la señal con la información de la temperatura con el ADC
 
-#### API UART:
-La utilizo como log de debug
+#### API DHT:
+- Driver de sensores DHT11 y DHT22 (mediante un enlace One Wire).
+- Esta API no la hice yo (la saqué de internet)
 
-#### API Display Driver:
-Se encarga de la comunicación I2C del display.
-- Inicializacion
-- Posicionamiento del cursor
-- Escritura
-Para hacer esta API me base fuertemente en el libro.
+#### API Sensor Temp:
+- Esta API se encarga de leer el driver del sensor de temperatura (usa la API anterior).
+- Procesamiento de filtrado con una media movil.
 
-#### API Display Subsystem:
-Se encarga de la escritura en el display a nivel template.
+#### API i2clcd:
+- Se encarga de escribir el display de caracteres LCD mediante una interfaz I2C.
+- Esta API no la hice yo (la saqué de internet)
+- Estaba originalmente pensada para usarse con STM32CubeIDE y la HAL de STM32.
+- Yo le hice unos pequeños cambios para utilizarla con la biblioteca "mbed.h".
 
-#### API Display Subsystem:
-Se encarga de la escritura en el display a nivel template.
+#### API Display Ui:
+- Se encarga de la escritura del display a nivel template.
 
 #### API LED:
-Cambia el estado del led
+- Cambia el estado del led
 
 #### API main controller:
-Hace uso de todas las APIs anteriores para cumplir con el objetivo
+- Hace uso de todas las APIs anteriores para cumplir con el objetivo
 
 ## Plataforma de desarrollo:
 NUCLEO-F401RE
 
 ## Periféricos a utilizar:
-- 1 ANALOG IN: Temperatura
-- 3 DIGITAL OUT: Salidas para cada color
+- 1 One Wire: Sensor temperatura
+- 3 DIGITAL OUT: Salidas led RGB
 - 1 I2C: Display
-- 1 UART: Api de debug
+- 1 UART: Api de debug (printf)
 
 ## Diagrama en bloques del Hardware:
-![image](https://github.com/user-attachments/assets/fef095dc-f7c7-48df-9d44-925ef89aab9a)
+![image](https://github.com/user-attachments/assets/7905063c-9f3a-41f7-96ab-7ea63691224c)
+
