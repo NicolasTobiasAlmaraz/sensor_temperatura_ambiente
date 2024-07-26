@@ -30,8 +30,19 @@
 
 #include "DHT.h"
 
-#define DHT_DATA_LENGTH 40
+//==================================================================
+// Defines
+//==================================================================
 
+#define DHT_DATA_LENGTH 40 /**< Longitud de los datos de DHT */
+
+/**
+ * @brief Macro para esperar un cambio en el pin y manejar errores.
+ * 
+ * @param from Valor esperado del pin.
+ * @param timeout Tiempo máximo para esperar el cambio en microsegundos.
+ * @param err Código de error a devolver si se supera el tiempo de espera.
+ */
 #define WAIT_PIN_CHANGE(from, timeout, err)          \
     timer.reset();                                   \
     do {                                             \
@@ -41,6 +52,14 @@
         }                                            \
     } while(dio == from);
 
+/**
+ * @brief Macro para medir el tiempo de cambio en el pin y manejar errores.
+ * 
+ * @param from Valor esperado del pin.
+ * @param elapsed Variable para almacenar el tiempo transcurrido.
+ * @param timeout Tiempo máximo para medir el cambio en microsegundos.
+ * @param err Código de error a devolver si se supera el tiempo de espera.
+ */
 #define MEASURE_PIN_CHANGE(from, elapsed, timeout, err) \
     timer.reset();                                      \
     do {                                                \
@@ -51,106 +70,127 @@
         }                                               \
     } while(dio == from);
 
+//==================================================================
+// Métodos públicos
+//==================================================================
+
+/**
+ * @brief Constructor de la clase DHT.
+ * 
+ * @param pin Pin donde está conectado el sensor.
+ * @param family Tipo de sensor DHT (DHT11 o DHT22).
+ */
 DHT::DHT(PinName pin, Family family) : _pin(pin), _family(family), _lastReadTime(-1) {}
 
+/**
+ * @brief Destructor de la clase DHT.
+ */
 DHT::~DHT() {}
 
+/**
+ * @brief Lee los datos del sensor DHT.
+ * 
+ * @return Código de error que indica el resultado de la lectura. Ver enumeración ::DHT::Status.
+ */
 int DHT::read() {
-    Status error = SUCCESS;
+    Status error = SUCCESS; // Código de error inicial
     int i = 0, j = 0;
     unsigned int time1, time2, time3;
-    unsigned int timings[DHT_DATA_LENGTH] = {0};
+    unsigned int timings[DHT_DATA_LENGTH] = {0}; // Array para almacenar los tiempos de los datos
     time_t currentTime;
-    DigitalInOut dio(_pin);
-    Timer timer;
+    DigitalInOut dio(_pin); // Objeto para manejar el pin del sensor
+    Timer timer; // Temporizador para medir tiempos
 
-    currentTime = time(NULL);
+    currentTime = time(NULL); // Obtiene el tiempo actual
 
+    // Verifica si la última lectura fue reciente
     if(_lastReadTime >= 0) {
         if(int(currentTime - _lastReadTime) < 2) {
-            return ERROR_TOO_FAST;
+            return ERROR_TOO_FAST; // Retorna error si la lectura es demasiado rápida
         }
     } else {
-        _lastReadTime = currentTime;
+        _lastReadTime = currentTime; // Actualiza el tiempo de la última lectura
     }
 
-    timer.start();
+    timer.start(); // Inicia el temporizador
 
-    // wait bus to be pulled-up
+    // Espera a que el bus sea elevado
     WAIT_PIN_CHANGE(0, 500, ERROR_BUS_BUSY);
 
-    // start signal : low 18ms then release the bus
+    // Envía la señal de inicio: bajo 18ms y luego libera el bus
     dio.output();
     dio = 0;
     ThisThread::sleep_for(18ms);
     dio = 1;
     dio.input();
 
-    // next steps are timing-dependents
-    core_util_critical_section_enter();
+    // Las siguientes etapas son dependientes del tiempo
+    core_util_critical_section_enter(); // Protege la sección crítica
 
-    // bus pulled-up 20 to 40us
+    // Espera a que el bus se eleve de 20 a 40us
     WAIT_PIN_CHANGE(1, 60, ERROR_NOT_DETECTED);
 
-    // sensor start : 80us low + 80us pulled-up
+    // Sensor inicia: 80us bajo + 80us elevado
     WAIT_PIN_CHANGE(0, 100, ERROR_BAD_START);
     WAIT_PIN_CHANGE(1, 100, ERROR_BAD_START);
 
-    // read data (5x8bits)
+    // Lee los datos (5x8 bits)
     for(i = 0; i < 5; i++) {
         for(j = 0; j < 8; j++) {
-            // sensor : 50us low
+            // Sensor: 50us bajo
             WAIT_PIN_CHANGE(0, 100, ERROR_SYNC_TIMEOUT);
 
-            // sensor : 26-28 (means 0) to 70us (means 1) high
+            // Sensor: 26-28us (0) a 70us (1) elevado
             MEASURE_PIN_CHANGE(1, timings[i * 8 + j], 100, ERROR_DATA_TIMEOUT);
         }
     }
 
 read_error:
-    // reading done (or failed...)
-    core_util_critical_section_exit();
+    // Finaliza la lectura (o manejo de errores...)
+    core_util_critical_section_exit(); // Sale de la sección crítica
 
-    timer.stop();
+    timer.stop(); // Detiene el temporizador
 
     if(error) {
-        return error;
+        return error; // Retorna el código de error si ocurrió un problema
     }
 
+    // Procesa los datos leídos
     for(i = 0; i < 5; i++) {
         int val = 0;
         for(j = 0; j < 8; j++) {
-#ifdef DHTDEBUG
-            debug("%d ", timings[i * 8 + j]);
-#endif
             if(timings[i * 8 + j] >= 38) {
                 val |= (1 << (7 - j));
             }
         }
-#ifdef DHTDEBUG
-        debug("\r\n");
-#endif
         _data[i] = val;
     }
 
-#ifdef DHTDEBUG
-    debug("%02x %02x %02x %02x %02x\r\n", _data[0], _data[1], _data[2], _data[3], _data[4]);
-#endif
-
+    // Verifica el checksum de los datos
     if(_data[4] == ((_data[0] + _data[1] + _data[2] + _data[3]) & 0xFF)) {
-        _lastTemperature = calcTemperature();
-        _lastHumidity = calcHumidity();
+        _lastTemperature = calcTemperature(); // Calcula la temperatura
+        _lastHumidity = calcHumidity(); // Calcula la humedad
     } else {
-        return ERROR_BAD_CHECKSUM;
+        return ERROR_BAD_CHECKSUM; // Retorna error si el checksum es incorrecto
     }
 
-    return SUCCESS;
+    return SUCCESS; // Retorna éxito si todo está bien
 }
 
+/**
+ * @brief Obtiene los datos crudos leídos del sensor.
+ * 
+ * @return Puntero a un arreglo de enteros con los datos crudos.
+ */
 int* DHT::getRawData() {
     return _data;
 }
 
+/**
+ * @brief Calcula la temperatura basada en el tipo de sensor.
+ * 
+ * @return Temperatura en grados Celsius para DHT11, o en grados Celsius con el signo para DHT22.
+ */
 float DHT::calcTemperature() {
     int v;
 
@@ -169,6 +209,11 @@ float DHT::calcTemperature() {
     return 0;
 }
 
+/**
+ * @brief Calcula la humedad basada en el tipo de sensor.
+ * 
+ * @return Humedad en porcentaje.
+ */
 float DHT::calcHumidity() {
     int v;
 
@@ -185,14 +230,32 @@ float DHT::calcHumidity() {
     return 0;
 }
 
+/**
+ * @brief Convierte grados Celsius a Fahrenheit.
+ * 
+ * @param celsius Temperatura en grados Celsius.
+ * @return Temperatura en grados Fahrenheit.
+ */
 float DHT::toFarenheit(float celsius) {
     return celsius * 9 / 5 + 32;
 }
 
+/**
+ * @brief Convierte grados Celsius a Kelvin.
+ * 
+ * @param celsius Temperatura en grados Celsius.
+ * @return Temperatura en Kelvin.
+ */
 float DHT::toKelvin(float celsius) {
     return celsius + 273.15;
 }
 
+/**
+ * @brief Obtiene la temperatura en la unidad deseada.
+ * 
+ * @param unit Unidad deseada para la temperatura (Celsius, Fahrenheit o Kelvin).
+ * @return Temperatura en la unidad deseada.
+ */
 float DHT::getTemperature(Unit unit) {
     if(unit == FARENHEIT)
         return toFarenheit(_lastTemperature);
@@ -202,6 +265,11 @@ float DHT::getTemperature(Unit unit) {
         return _lastTemperature;
 }
 
+/**
+ * @brief Obtiene la humedad medida por el sensor.
+ * 
+ * @return Humedad en porcentaje.
+ */
 float DHT::getHumidity() {
     return _lastHumidity;
 }

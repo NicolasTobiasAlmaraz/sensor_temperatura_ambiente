@@ -35,7 +35,7 @@
 
 //TODO: Le puse uint8_t para poder escalarse en el futuro a un PWM almacenando el duty de cada color
 /**
-*@brief: Contiene un color rgb
+*@brief Contiene un color rgb
 */
 typedef struct {
     uint8_t red;

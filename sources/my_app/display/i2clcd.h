@@ -1,6 +1,6 @@
 /**
-* @file           : i2clcd.h
-* @brief          : Library for I2C LCD display with mbedOS
+* @file i2clcd.h
+* @brief Library for I2C LCD display with mbedOS
 * @author controllerstech, 2019-05-29
 * https://controllerstech.com/lcd-20x4-using-i2c-with-stm32/
 *
@@ -8,7 +8,6 @@
 *
 * Note Nicolas Almaraz:
 * I have adapted this API for use within the mbed framework
-*
 */
 
 #ifndef I2CLCD_H
@@ -23,18 +22,23 @@
 // Declaracion de funciones publicas
 //=======================================================
 
-void lcd_init(void); // initialize lcd
+/**
+* @brief Inciializa LCD
+*/
+void lcd_init(void); 
 
-void lcd_send_cmd(char cmd); // send command to the lcd
+/**
+* @brief posicion el cursor en el lugar indicado y escribe un string
+* @param txt String a escribir
+* @param line Renglon
+* @param column Posicion
+* @warning Si se termina el renglón no se asegura el correcto funcionamiento
+*/
+void lcd_write(const char *txt, uint8_t line, uint8_t column);
 
-void lcd_send_data(char data); // send data to the lcd
-
-void lcd_send_string(const char *str); // send string to the lcd
-
-void lcd_write(const char *txt, uint8_t line, uint8_t column); // write string to specific line
-
+/**
+* @brief Borra todo el display
+*/
 void lcd_clear(void);
-
-void lcd_clear_line(uint8_t line, uint8_t column);
 
 #endif

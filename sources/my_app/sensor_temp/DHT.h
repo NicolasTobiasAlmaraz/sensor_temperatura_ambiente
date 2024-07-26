@@ -57,65 +57,88 @@
  * }
  * @endcode
  */
+
+
 class DHT {
+    public:
+        /**
+        * Tipos de sensores compatibles con esta API
+        */
+        enum Family {
+            DHT11,
+            DHT22
+        };
 
-public:
+        /**
+        * @brief posibles estados de retorno al intentar leer el sensor
+        */
+        enum Status {
+            SUCCESS,
+            ERROR_BUS_BUSY,
+            ERROR_NOT_DETECTED,
+            ERROR_BAD_START,
+            ERROR_SYNC_TIMEOUT,
+            ERROR_DATA_TIMEOUT,
+            ERROR_BAD_CHECKSUM,
+            ERROR_TOO_FAST,
+        };
 
-    enum Family {
-        DHT11,
-        DHT22
-    };
+        
+        /**
+        * @brief Unidades de temperatura posibles
+        */
+        enum Unit {
+            CELCIUS,
+            FARENHEIT,
+            KELVIN,
+        };
 
-    enum Status {
-        SUCCESS,
-        ERROR_BUS_BUSY,
-        ERROR_NOT_DETECTED,
-        ERROR_BAD_START,
-        ERROR_SYNC_TIMEOUT,
-        ERROR_DATA_TIMEOUT,
-        ERROR_BAD_CHECKSUM,
-        ERROR_TOO_FAST,
-    };
+        /**
+        * @brief Constructor de la clase DHT.
+        * 
+        * @param pin Pin donde está conectado el sensor.
+        * @param family Tipo de sensor DHT (DHT11 o DHT22).
+        */
+        DHT(PinName pin, Family DHTtype);
+        
+        /**
+        * @brief Destructor de la clase DHT
+        */
+        ~DHT();
 
-    enum Unit {
-        CELCIUS,
-        FARENHEIT,
-        KELVIN,
-    };
+        /** 
+        * @brief Lee los datos del sensor
+        * @returns Un status de error. Ver ::DHTError
+        */
+        int read(void);
 
-    DHT(PinName pin, Family DHTtype);
-    ~DHT();
+        /** 
+        * @brief Retorna el dato crudo (puede ser util para enviarlo a traves de una red low-power WAN como LoraWan)
+        */
+        int* getRawData();
 
-    /** Read data on sensor
-     * 
-     * @returns an error code. See ::DHTError
-     */
-    int read(void);
+        /** 
+        * @brief Retorna la humedad relativa de la ultima lectura exitosa
+        */
+        float getHumidity(void);
 
-    /** Get pointer to raw data (can be useful to send it througt a low-power WAN)
-    */
-    int* getRawData();
+        /** 
+        * @brief Retorna la temperatura de la ultima lectura exitosa
+        * @param unit Unidad de la temperatura que esperamos CELCIUS / FARENHEIT / KELVIN. Por default es celsious
+        */
+        float getTemperature(Unit unit = CELCIUS);
 
-    /** Get humidity from the last succesful read
-    */
-    float getHumidity(void);
-
-    /** Get temperature from the last succesful read
-    */
-    float getTemperature(Unit unit = CELCIUS);
-
-private:
-    PinName _pin;
-    Family _family;
-    time_t  _lastReadTime;
-    float _lastTemperature;
-    float _lastHumidity;
-    int _data[5];
-    float calcTemperature();
-    float calcHumidity();
-    float toFarenheit(float);
-    float toKelvin(float);
-
+    private:
+        PinName _pin;
+        Family _family;
+        time_t  _lastReadTime;
+        float _lastTemperature;
+        float _lastHumidity;
+        int _data[5];
+        float calcTemperature();
+        float calcHumidity();
+        float toFarenheit(float);
+        float toKelvin(float);
 };
 
 #endif

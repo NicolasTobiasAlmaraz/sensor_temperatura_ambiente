@@ -1,6 +1,6 @@
 /**
 * @file myapp_sensor_temp.cpp
-* @brief Implementaciones de la API de sensor_temp
+* @brief Implementaciones API de sensor temperatura (subsystem)
 * @author Nicolás Almaraz
 * @version rev 1.0
 * @date 28/06/2024

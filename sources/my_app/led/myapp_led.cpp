@@ -2,8 +2,8 @@
 * @file myapp_led.cpp
 * @brief Implementaciones de la API LEDs
 * @author Nicolás Almaraz
-* @version rev 1.0
-* @date 18/07/2024
+* @version rev 2.0
+* @date 24/07/2024
 */
 
 //====================================================================
@@ -38,6 +38,7 @@
 * @brief: Objeto handler del led rojo
 */
 static DigitalOut g_led_red(GPIO_LED_RED);
+
 /**
 * @brief: Objeto handler del led verde
 */
@@ -59,61 +60,49 @@ static rgb_color_t g_config_leds;
 //==================================================================== 
 
 /**
-* @brief: Enciende el led rojo
+* @brief: Enciende o apaga el led rojo
+* @param estado true: encendido, false: apagado
 */
-static void ledsApi_prenderRojo();
+static void ledsApi_setRojo();
 
 /**
-* @brief: Enciende el led verde
+* @brief: Enciende o apaga el led verde
+* @param estado true: encendido, false: apagado
 */
-static void ledsApi_prenderVerde();
+static void ledsApi_setVerde();
 
 /**
-* @brief: Enciende el led azul
+* @brief: Enciende o apaga el led azul
+* @param estado true: encendido, false: apagado
 */
-static void ledsApi_prenderAzul();
-
-/**
-* @brief: Apaga el led rojo
-*/
-static void ledsApi_apagarRojo();
-
-/**
-* @brief: Apaga el led verde
-*/
-static void ledsApi_apagarVerde();
-
-/**
-* @brief: Apaga el led azul
-*/
-static void ledsApi_apagarAzul();
+static void ledsApi_setAzul();
 
 //==================================================================== 
 // Implementacion de funciones  publicas
 //==================================================================== 
  
 void ledApi_setCaluroso() {
-    ledsApi_prenderRojo();
-    ledsApi_apagarVerde();
-    ledsApi_apagarAzul();
+    ledsApi_setRojo(true);
+    ledsApi_setVerde(false);
+    ledsApi_setAzul(false);
 }
 
 void ledApi_setNormal() {
-    ledsApi_apagarRojo();
-    ledsApi_prenderVerde();
-    ledsApi_apagarAzul();
+    ledsApi_setRojo(false);
+    ledsApi_setVerde(true);
+    ledsApi_setAzul(false);
 }
 
 void ledApi_setFrio(){
-    ledsApi_apagarRojo();
-    ledsApi_apagarVerde();
-    ledsApi_prenderAzul();
+    ledsApi_setRojo(false);
+    ledsApi_setVerde(false);
+    ledsApi_setAzul(true);
 }
 
 void ledApi_init() {
-    ledsApi_apagarRojo();
-    ledsApi_apagarVerde();
-    ledsApi_apagarAzul();
+    ledsApi_setRojo(false);
+    ledsApi_setVerde(false);
+    ledsApi_setAzul(false);
 
     printf("Init Api Led\r\n");
 }
@@ -122,32 +111,17 @@ void ledApi_init() {
 // Implementacion de funciones privadas
 //==================================================================== 
 
-static void ledsApi_prenderRojo() {
-    g_led_red = false;
-    g_config_leds.red = 1;
+static void ledsApi_setRojo(bool estado) {
+    g_led_red = !estado;
+    g_config_leds.red = estado;
 }
 
-static void ledsApi_prenderVerde() {
-    g_led_green = false;
-    g_config_leds.green = 1;
+static void ledsApi_prenderVerde(bool estado) {
+    g_led_green = !estado;
+    g_config_leds.green = estado;
 }
 
-static void ledsApi_prenderAzul() {
-    g_led_blue = false;
-    g_config_leds.blue = 1;
-}
-
-static void ledsApi_apagarRojo() {
-    g_led_red = true;
-    g_config_leds.red = 0;
-}
-
-static void ledsApi_apagarVerde() {
-    g_led_green = true;
-    g_config_leds.green = 0;
-}
-
-static void ledsApi_apagarAzul() {
-    g_led_blue = true;
-    g_config_leds.blue = 0;
+static void ledsApi_setAzul(bool estado) {
+    g_led_blue = !estado;
+    g_config_leds.blue = estado;
 }

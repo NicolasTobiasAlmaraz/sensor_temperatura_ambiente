@@ -20,24 +20,25 @@
 *       - i2clcd
 *   - sensorTempApi
 *       - DHT
-*   - mainControllerApi
+* La api de más alto nivel que hace uso de todas las anteriores es la llamada "app"
+* Esta tiene las funciones app_init() y app_loop();
 */
 
 //==========================================
 // Dependencias
 //==========================================
-#include "myapp_main_controller.h"
+#include "app.h"
 
 //==========================================
 // Main Loop
 //==========================================
 
 /**
-* @brief: Inicializa perifericos y corre la app general
+* @brief Inicializa perifericos y corre la app general
 */
 int main() {
-    mainControllerApi_init();
+    app_init();
     while (true) {
-        mainControllerApi_loop();
+        app_loop();
     }
 }

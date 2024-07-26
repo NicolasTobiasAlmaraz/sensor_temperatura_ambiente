@@ -1,12 +1,12 @@
 /**
 * @file myapp_sensor_temp.h
-* @brief API de sensor temperatura
+* @brief API de sensor temperatura (subsystem)
 * @author Nicolás Almaraz
 * @version rev 1.0
 * @date 18/07/2024
 *
-* Para ello utiliza una conexión One Wire. Para muestrear se hace una media movil con las ultimas
-* LEN_MED_MOV muestras
+* Para ello utiliza una conexión One Wire.
+* Para muestrear se hace una media movil con las ultimas LEN_MED_MOV muestras
 */
 
 #ifndef MYAPP_LM35_H
