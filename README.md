@@ -19,20 +19,20 @@ Nicolás Almaraz - nnico.almaraz@gmail.com
 |-- main.cpp
 |-- display
 | |-- myapp_display_ui.h
-| |-- myapp_display_ui.c
+| |-- myapp_display_ui.cpp
 | |-- i2clcd.h
-| |-- i2clcd.c
+| |-- i2clcd.cpp
 |-- led
 | |-- myapp_led.h
-| |-- myapp_led.c
+| |-- myapp_led.cpp
 |-- sensor_temp
 | |-- sensor_temp.h
-| |-- sensor_temp.c
+| |-- sensor_temp.cpp
 | |-- DHT.h
-| |-- DHT.c
-|-- main_controller
-| |-- myapp_main_controller.h
-| |-- myapp_main_controller.c
+| |-- DHT.cpp
+|-- app
+| |-- app.h
+| |-- app.cpp
 ```
 
 ## Documentación
@@ -63,6 +63,7 @@ Para que no haya temperaturas límite le introduje un ciclo de histéresis:
 #### API DHT:
 - Driver de sensores DHT11 y DHT22 (mediante un enlace One Wire).
 - Esta API no la hice yo (la saqué de internet)
+- Link al repositorio original: https://github.com/atoy40/mbed-dht
 
 #### API Sensor Temp:
 - Esta API se encarga de leer el driver del sensor de temperatura (usa la API anterior).
@@ -73,6 +74,7 @@ Para que no haya temperaturas límite le introduje un ciclo de histéresis:
 - Esta API no la hice yo (la saqué de internet)
 - Estaba originalmente pensada para usarse con STM32CubeIDE y la HAL de STM32.
 - Yo le hice unos pequeños cambios para utilizarla con la biblioteca "mbed.h".
+- Link al repositorio original: https://github.com/ayleenw/lcd_i2c_stm32
 
 #### API Display Ui:
 - Se encarga de la escritura del display a nivel template.
@@ -80,7 +82,7 @@ Para que no haya temperaturas límite le introduje un ciclo de histéresis:
 #### API LED:
 - Cambia el estado del led
 
-#### API main controller:
+#### API App:
 - Hace uso de todas las APIs anteriores para cumplir con el objetivo
 
 ## Plataforma de desarrollo:
